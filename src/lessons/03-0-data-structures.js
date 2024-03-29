@@ -36,21 +36,25 @@ const exampleJournal = [
 // The in keyword can be used to check if a property exists in an object.
 function checkIfCalledMomIsInJournal(journal) {
   // Your code here
+  return journal.every(entry => 'calledMom' in entry);
 }
 
 // Write a function to check if the property calledMom exists in any journal entries.
 function checkIfCalledMomIsInAnyJournal(journal) {
   // Your code here
+  return journal.some(entry => "calledMom" in entry);
 }
 
 //  Create a function that returns an array of all keys from the first entry of the journal.
 function returnAllKeysFromFirstEntry(journal) {
   // Your code here
+  return Object.keys(journal[0]);
 }
 
 // Write a function to return an array of all values from a specific journal entry.
 function returnAllValuesFromSpecificEntry(journal, index) {
   // Your code here
+  return Object.values(journal[index]);
 }
 
 // Create a function that Updates the second journal entry's events by adding a new event "dinner".
@@ -60,6 +64,10 @@ function returnAllValuesFromSpecificEntry(journal, index) {
 // It should return the updated journal.
 function updateSecondEntry(journal) {
   // Your code here
+  if (!journal[1]) return journal;
+
+  journal[1].events.push('dinner');
+  return journal;
 }
 
 // Create a function that adds an event to a specific journal entry.
@@ -68,6 +76,9 @@ function updateSecondEntry(journal) {
 // It should return the updated journal.
 function addEventToEntryAtIndex(journal, index, event) {
   // Your code here
+  if (!journal[index]) return journal;
+  journal[index].events.push(event);
+  return journal;
 }
 
 // Add a new journal entry to the end of exampleJournal.
@@ -80,43 +91,109 @@ function addEventToEntryAtIndex(journal, index, event) {
 // It should return the updated journal.
 function addNewEntry(journal, entry) {
   // Your code here
+  journal.push(entry);
+  return journal;
 }
 
 // Create a function that deletes the first journal entry.
 // It should return the updated journal.
 function deleteFirstEntry(journal) {
   // Your code here
+  journal.shift();
+  return journal;
 }
 
 // Create a function that finds the happiest day in the journal.
 // The happiest day is the day with the highest happiness score.
 // It should return the entry with the highest happiness score.
-function findHappiestDay(journal) {}
+function findHappiestDay(journal) {
+  let happiestDay = journal[0];
+
+  for (const entry of journal) {
+    if (entry.happiness > happiestDay.happiness) {
+      happiestDay = entry;
+    }
+  }
+  return happiestDay;
+}
 
 // Create a function that finds the average happiness score in the journal.
 // It should return the average happiness score.
 // Use the array reduce() method
-function calculateAverageHappiness(journal) {}
+function calculateAverageHappiness(journal) {
+  if (!journal || !journal.length) return 0;
+
+  const total = journal.reduce((total, entry) => total + entry.happiness, 0);
+  return (total / journal.length);
+}
 
 // Create a function that finds the most frequent activity in the journal.
 // It should return the most frequent activity.
-function mostFrequentActivity(journal) {}
+function mostFrequentActivity(journal) {
+  if (!journal || !journal.length) return;
+
+  let activities = {};
+  let topActivity;
+
+  // Create map of activities
+  journal.forEach(({ events }) => {
+    events.forEach(event => {
+      activities[event] = !activities[event] ? 1 : activities[event] += 1;
+    })
+  });
+
+  for (const activity of Object.keys(activities)) {
+    if (!topActivity) {
+      topActivity = activity;
+    } else if (activities[topActivity] <= activities[activity]) {
+      topActivity = activity;
+    }
+  }
+
+  return topActivity;
+}
 
 // Create a function that filters the journal by activity.
 // It should return an array of entries that include the specified activity.
-function filterEntriesByActivity(journal, activity) {}
+function filterEntriesByActivity(journal, activity) {
+  if (!journal) return;
+
+  return journal.filter(({ events }) => events.includes(activity));
+}
 
 // Create a function that returns the longest streak of consecutive days where mom was called.
 // It should return the longest streak.
-function longestMomCallStreak(journal) {}
+function longestMomCallStreak(journal) {
+  let longestStreak = 0;
+  let streak = 0;
+  journal.forEach(({ calledMom }) => {
+    if (calledMom) {
+      streak += 1;
+      if (streak > longestStreak) {
+        longestStreak = streak;
+      }
+    } else {
+      streak = 0;
+    }
+  });
+
+  return longestStreak;
+}
 
 // Create a function that adds an event to all entries that do not have calledMom set to true.
 // It should return the updated journal.
 // You should consider giving your mom a call.
-function addEventIfMomNotCalled(journal, event) {}
+function addEventIfMomNotCalled(journal, event) {
+  journal.forEach(({ calledMom, events }) => {
+    if (!calledMom) events.push('call mom')
+  });
+  return journal;
+}
 
 // Create a function that generates a report for the journal.
 // It should return a string with the following format:
 // Total Entries: 5, Average Happiness: 6.6, Most Common Activity: work
 // You should reuse the functions you created above.
-function generateJournalReport(journal) {}
+function generateJournalReport(journal) {
+  return `Total Entries: ${journal.length}, Average Happiness: ${calculateAverageHappiness(journal)}, Most Common Activity: ${mostFrequentActivity(journal)}`;
+}
