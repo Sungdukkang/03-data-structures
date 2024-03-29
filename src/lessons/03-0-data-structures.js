@@ -64,8 +64,6 @@ function returnAllValuesFromSpecificEntry(journal, index) {
 // It should return the updated journal.
 function updateSecondEntry(journal) {
   // Your code here
-  if (!journal[1]) return journal;
-
   journal[1].events.push('dinner');
   return journal;
 }
@@ -130,54 +128,49 @@ function calculateAverageHappiness(journal) {
 // Create a function that finds the most frequent activity in the journal.
 // It should return the most frequent activity.
 function mostFrequentActivity(journal) {
-  if (!journal || !journal.length) return;
-
   let activities = {};
-  let topActivity;
-
+  
   // Create map of activities
   journal.forEach(({ events }) => {
     events.forEach(event => {
-      activities[event] = !activities[event] ? 1 : activities[event] += 1;
+      activities[event] = (activities[event] || 0) + 1;
     })
   });
+  
+  // let topActivity;
+  // for (const activity of Object.keys(activities)) {
+  //   if (!topActivity) {
+  //     topActivity = activity;
+  //   } else if (activities[topActivity] <= activities[activity]) {
+  //     topActivity = activity;
+  //   }
+  // }
+  // return topActivity;
 
-  for (const activity of Object.keys(activities)) {
-    if (!topActivity) {
-      topActivity = activity;
-    } else if (activities[topActivity] <= activities[activity]) {
-      topActivity = activity;
-    }
-  }
-
-  return topActivity;
+  return Object.keys(activities).reduce((a, b) => activities[a] > activities[b] ? a : b)
 }
 
 // Create a function that filters the journal by activity.
 // It should return an array of entries that include the specified activity.
 function filterEntriesByActivity(journal, activity) {
-  if (!journal) return;
-
   return journal.filter(({ events }) => events.includes(activity));
 }
 
 // Create a function that returns the longest streak of consecutive days where mom was called.
 // It should return the longest streak.
 function longestMomCallStreak(journal) {
-  let longestStreak = 0;
-  let streak = 0;
+  let maxStreak = 0;
+  let currentStreak = 0;
   journal.forEach(({ calledMom }) => {
     if (calledMom) {
-      streak += 1;
-      if (streak > longestStreak) {
-        longestStreak = streak;
-      }
+      currentStreak += 1;
+      maxStreak = Math.max(maxStreak, currentStreak);
     } else {
-      streak = 0;
+      currentStreak = 0;
     }
   });
 
-  return longestStreak;
+  return maxStreak;
 }
 
 // Create a function that adds an event to all entries that do not have calledMom set to true.
@@ -185,7 +178,7 @@ function longestMomCallStreak(journal) {
 // You should consider giving your mom a call.
 function addEventIfMomNotCalled(journal, event) {
   journal.forEach(({ calledMom, events }) => {
-    if (!calledMom) events.push('call mom')
+    if (!calledMom) events.push(event)
   });
   return journal;
 }
